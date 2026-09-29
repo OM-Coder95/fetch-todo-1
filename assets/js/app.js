@@ -9,8 +9,21 @@ const BASE_URL = `https://todo-with-fetch-1-default-rtdb.firebaseio.com`;
 
 const TODO_URL = `${BASE_URL}/todo.json`;
 
+let state = {
+  todoArr: [],
+  editId: null,
+};
+
 // Functions
 
+// arrOfObj
+
+function arrOfObj(obj) {
+  for (const key in obj) {
+    obj[key].id = key;
+    state.todoArr.push(obj[key]);
+  }
+}
 // showSpinner
 
 function showSpinner() {
@@ -54,6 +67,9 @@ function onTodoAdd(event) {
     .then((res) => {
       cl(res);
 
+      newTodo.id = res.name;
+      state.todoArr.push(newTodo);
+
       createDiv(res, newTodo);
     })
     .catch((err) => {
@@ -84,6 +100,59 @@ function createDiv(res, newTodo) {
 
   todoContainer.append(li);
   resetForm();
+}
+
+// read
+
+function showOnUI() {
+  showSpinner();
+
+  fetch(TODO_URL, {
+    method: "GET",
+    body: null,
+    headers: {
+      "Content-Type": "application/json",
+      authorization: "JWT TOKEN",
+    },
+  })
+    .then((res) => {
+      return res.json();
+    })
+    .then((res) => {
+
+      arrOfObj(res);
+
+      rendering(state.todoArr);
+    })
+    .catch((err) => {
+      cl("Something went wrong");
+    })
+    .finally(() => {
+      hideSpinner();
+    });
+}
+
+showOnUI();
+
+// rendering
+
+function rendering(arr) {
+  let result = "";
+
+  arr.forEach((ele) => {
+    result += `
+    <li class="list-group-item d-flex justify-content-between" id="${ele.id}">
+        <h3>${ele.todo}</h3>
+        <div>
+            <button class="btn btn-sm"><i
+                    class="fa-solid fa-pen-to-square fa-2x text-primary"></i></button>
+            <button class="btn btn-sm"><i
+                    class="fa-solid fa-trash-can fa-2x text-danger"></i></button>
+        </div>
+    </li>
+    `;
+  });
+  todoContainer.innerHTML = result;
 }
 
 todoForm.addEventListener("submit", onTodoAdd);
