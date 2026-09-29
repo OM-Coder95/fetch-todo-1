@@ -95,7 +95,7 @@ function createDiv(res, newTodo) {
             <div>
                 <button class="btn btn-sm"><i onclick="editTodo(this)"
                         class="fa-solid fa-pen-to-square fa-2x text-primary"></i></button>
-                <button class="btn btn-sm"><i
+                <button class="btn btn-sm"><i onclick="removeTodo(this)"
                         class="fa-solid fa-trash-can fa-2x text-danger"></i></button>
             </div>
         `;
@@ -147,7 +147,7 @@ function rendering(arr) {
         <div>
             <button class="btn btn-sm"><i onclick="editTodo(this)"
                     class="fa-solid fa-pen-to-square fa-2x text-primary"></i></button>
-            <button class="btn btn-sm"><i
+            <button class="btn btn-sm"><i onclick="removeTodo(this)"
                     class="fa-solid fa-trash-can fa-2x text-danger"></i></button>
         </div>
     </li>
@@ -185,7 +185,7 @@ function onTodoUpdate() {
     method: "PATCH",
     body: JSON.stringify(updatedObj),
     headers: {
-      "Content-Type": "Application/json",
+      "Content-Type": "application/json",
       Authorization: "JWT TOKEN",
     },
   })
@@ -222,6 +222,40 @@ function updateUI(updatedObj) {
 
   updateTodoBtn.classList.add("d-none");
   addTodoBtn.classList.remove("d-none");
+}
+
+// removeTodo
+
+function removeTodo(ele) {
+  let removeId = ele.closest("li").id;
+
+  showSpinner();
+  let REMOVE_URL = `${BASE_URL}/todo/${removeId}.json`;
+  fetch(REMOVE_URL, {
+    method: "DELETE",
+    body: null,
+    headers: {
+      "Content-Type": "application/json",
+      authorization: "JWT TOKEN",
+    },
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`HTTP ERROR: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then((res) => {
+      cl(res);
+
+      ele.closest("li").remove();
+    })
+    .catch((err) => {
+      cl("Something went wrong.");
+    })
+    .finally((err) => {
+      hideSpinner();
+    });
 }
 
 todoForm.addEventListener("submit", onTodoAdd);
