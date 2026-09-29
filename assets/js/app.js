@@ -4,6 +4,8 @@ const todoForm = document.getElementById("todoForm");
 const todoName = document.getElementById("todoName");
 const todoContainer = document.getElementById("todoContainer");
 const spinner = document.getElementById("spinner");
+const addTodoBtn = document.getElementById("addTodoBtn");
+const updateTodoBtn = document.getElementById("updateTodoBtn");
 
 const BASE_URL = `https://todo-with-fetch-1-default-rtdb.firebaseio.com`;
 
@@ -57,8 +59,8 @@ function onTodoAdd(event) {
     method: "POST",
     body: JSON.stringify(newTodo),
     headers: {
-      "Cotent-Type": "application/json",
-      Authorizatio: "JWT TOKEN",
+      "Content-Type": "application/json",
+      Authorization: "JWT TOKEN",
     },
   })
     .then((res) => {
@@ -91,7 +93,7 @@ function createDiv(res, newTodo) {
   li.innerHTML = `
             <h3>${newTodo.todo}</h3>
             <div>
-                <button class="btn btn-sm"><i
+                <button class="btn btn-sm"><i onclick="editTodo(this)"
                         class="fa-solid fa-pen-to-square fa-2x text-primary"></i></button>
                 <button class="btn btn-sm"><i
                         class="fa-solid fa-trash-can fa-2x text-danger"></i></button>
@@ -119,7 +121,6 @@ function showOnUI() {
       return res.json();
     })
     .then((res) => {
-
       arrOfObj(res);
 
       rendering(state.todoArr);
@@ -144,7 +145,7 @@ function rendering(arr) {
     <li class="list-group-item d-flex justify-content-between" id="${ele.id}">
         <h3>${ele.todo}</h3>
         <div>
-            <button class="btn btn-sm"><i
+            <button class="btn btn-sm"><i onclick="editTodo(this)"
                     class="fa-solid fa-pen-to-square fa-2x text-primary"></i></button>
             <button class="btn btn-sm"><i
                     class="fa-solid fa-trash-can fa-2x text-danger"></i></button>
@@ -153,6 +154,19 @@ function rendering(arr) {
     `;
   });
   todoContainer.innerHTML = result;
+}
+
+// edit
+
+function editTodo(ele) {
+  let editId = ele.closest("li").id;
+  state.editId = editId;
+
+  let getObj = state.todoArr.find((ele) => ele.id === editId);
+  todoName.value = getObj.todo;
+
+  addTodoBtn.classList.add("d-none");
+  updateTodoBtn.classList.remove("d-none");
 }
 
 todoForm.addEventListener("submit", onTodoAdd);
