@@ -169,4 +169,60 @@ function editTodo(ele) {
   updateTodoBtn.classList.remove("d-none");
 }
 
+// update
+
+function onTodoUpdate() {
+  let updateId = state.editId;
+
+  let updatedObj = {
+    todo: todoName.value.trim(),
+    id: updateId,
+  };
+
+  showSpinner();
+  let UPDATE_URL = `${BASE_URL}/todo/${updateId}.json`;
+  fetch(UPDATE_URL, {
+    method: "PATCH",
+    body: JSON.stringify(updatedObj),
+    headers: {
+      "Content-Type": "Application/json",
+      Authorization: "JWT TOKEN",
+    },
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new error(`HTTP error: ${res.status}`);
+      }
+      cl(res);
+      return res.json();
+    })
+    .then((res) => {
+      cl(res);
+
+      let getIndex = state.todoArr.findIndex((ele) => ele.id === updateId);
+      state.todoArr[getIndex] = updatedObj;
+
+      updateUI(updatedObj);
+      state.editId = null;
+    })
+    .catch((err) => {
+      cl("Something went wrong");
+    })
+    .finally(() => {
+      hideSpinner();
+    });
+}
+
+// updateUI
+
+function updateUI(updatedObj) {
+  let li = document.getElementById(updatedObj.id);
+
+  li.querySelector("h3").innerText = updatedObj.todo;
+
+  updateTodoBtn.classList.add("d-none");
+  addTodoBtn.classList.remove("d-none");
+}
+
 todoForm.addEventListener("submit", onTodoAdd);
+updateTodoBtn.addEventListener("click", onTodoUpdate);
